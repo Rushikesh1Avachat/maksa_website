@@ -1,0 +1,58 @@
+<svg width="1200" height="1200" viewBox="0 0 1200 1200" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg" x1="140" y1="120" x2="1060" y2="1080" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#FFF5E9"/>
+      <stop offset="0.52" stop-color="#F0DBC5"/>
+      <stop offset="1" stop-color="#D7A46F"/>
+    </linearGradient>
+    <linearGradient id="jar" x1="430" y1="300" x2="770" y2="860" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#3B241B"/>
+      <stop offset="0.48" stop-color="#5A3424"/>
+      <stop offset="1" stop-color="#1E120D"/>
+    </linearGradient>
+    <linearGradient id="lid" x1="388" y1="236" x2="812" y2="292" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#F9E9CC"/>
+      <stop offset="1" stop-color="#D9B889"/>
+    </linearGradient>
+    <linearGradient id="label" x1="455" y1="392" x2="745" y2="676" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#F8EDD7"/>
+      <stop offset="1" stop-color="#EAD4B0"/>
+    </linearGradient>
+    <radialGradient id="shine" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(505 430) rotate(90) scale(260 80)">
+      <stop stop-color="white" stop-opacity="0.34"/>
+      <stop offset="1" stop-color="white" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <rect width="1200" height="1200" rx="80" fill="url(#bg)"/>
+  <circle cx="246" cy="234" r="170" fill="#FFFFFF" fill-opacity="0.28"/>
+  <circle cx="926" cy="318" r="220" fill="#F7E1C7" fill-opacity="0.65"/>
+  <circle cx="912" cy="890" r="250" fill="#AD6D43" fill-opacity="0.14"/>
+  <ellipse cx="602" cy="960" rx="260" ry="36" fill="#7D4E33" fill-opacity="0.18"/>
+  <g filter="url(#shadow)">
+    <rect x="420" y="248" width="360" height="92" rx="46" fill="url(#lid)"/>
+    <path d="M460 320H740C757.673 320 772 334.327 772 352V846C772 881.137 743.137 910 708 910H492C456.863 910 428 881.137 428 846V352C428 334.327 442.327 320 460 320Z" fill="url(#jar)"/>
+    <path d="M489 370H711C738.614 370 761 392.386 761 420V710C761 768.543 713.543 816 655 816H545C486.457 816 439 768.543 439 710V420C439 392.386 461.386 370 489 370Z" fill="#F3E6C8"/>
+    <rect x="476" y="410" width="248" height="255" rx="34" fill="url(#label)"/>
+    <rect x="499" y="437" width="202" height="20" rx="10" fill="#B17A47"/>
+    <text x="600" y="526" text-anchor="middle" fill="#241711" font-family="Arial, Helvetica, sans-serif" font-size="54" font-weight="700">Maska</text>
+    <text x="600" y="600" text-anchor="middle" fill="#6B4A38" font-family="Arial, Helvetica, sans-serif" font-size="36" font-weight="700">Chocolate</text>
+    <text x="600" y="648" text-anchor="middle" fill="#8B664C" font-family="Arial, Helvetica, sans-serif" font-size="28" font-weight="600">Salvation</text>
+    <path d="M473 442H727" stroke="#DAB98E" stroke-width="10" stroke-linecap="round"/>
+    <path d="M466 356C500 340 530 334 600 334C670 334 700 340 734 356" stroke="white" stroke-opacity="0.15" stroke-width="12" stroke-linecap="round"/>
+    <ellipse cx="508" cy="520" rx="32" ry="120" fill="url(#shine)"/>
+  </g>
+  <path d="M342 736C362 716 392 708 424 716" stroke="#B77D4B" stroke-width="18" stroke-linecap="round"/>
+  <path d="M872 764C904 742 934 735 964 742" stroke="#B77D4B" stroke-width="18" stroke-linecap="round"/>
+  <g filter="url(#glow)">
+    <circle cx="332" cy="330" r="48" fill="#FFFFFF" fill-opacity="0.42"/>
+    <circle cx="876" cy="360" r="36" fill="#FFFFFF" fill-opacity="0.28"/>
+  </g>
+  <defs>
+    <filter id="shadow" x="330" y="180" width="540" height="820" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+      <feDropShadow dx="0" dy="28" stdDeviation="28" flood-color="#6B3F24" flood-opacity="0.24"/>
+    </filter>
+    <filter id="glow" x="250" y="250" width="700" height="220" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+      <feDropShadow dx="0" dy="0" stdDeviation="16" flood-color="#FFFFFF" flood-opacity="0.8"/>
+    </filter>
+  </defs>
+</svg>

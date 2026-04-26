@@ -1,0 +1,28 @@
+<svg width="1200" height="900" viewBox="0 0 1200 900" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg" x1="160" y1="90" x2="1040" y2="820" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#F7F0E5"/>
+      <stop offset="1" stop-color="#D7B38A"/>
+    </linearGradient>
+    <linearGradient id="spoon" x1="290" y1="180" x2="940" y2="690" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#F2E1C8"/>
+      <stop offset="1" stop-color="#B48256"/>
+    </linearGradient>
+    <linearGradient id="spread" x1="414" y1="315" x2="724" y2="570" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#40261D"/>
+      <stop offset="1" stop-color="#6D3D2A"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="900" rx="56" fill="url(#bg)"/>
+  <ellipse cx="564" cy="720" rx="300" ry="68" fill="#7A4A2B" fill-opacity="0.12"/>
+  <path d="M273 558C273 512 304 471 349 461L638 396C673 388 709 406 726 437L820 608C841 645 820 692 780 702L466 781C404 797 340 767 315 710L273 558Z" fill="url(#spoon)"/>
+  <path d="M393 548C393 521 414 497 441 492L606 457C639 450 673 468 683 500L720 619C731 654 709 691 674 701L487 748C445 759 405 733 396 691L393 548Z" fill="url(#spread)"/>
+  <circle cx="474" cy="503" r="19" fill="#F3CE8A" fill-opacity="0.55"/>
+  <circle cx="548" cy="486" r="19" fill="#F3CE8A" fill-opacity="0.55"/>
+  <circle cx="618" cy="470" r="19" fill="#F3CE8A" fill-opacity="0.55"/>
+  <path d="M754 604C854 532 938 474 1031 405" stroke="#FBF4E7" stroke-width="26" stroke-linecap="round"/>
+  <path d="M770 622C870 548 952 490 1050 414" stroke="#A56C41" stroke-width="14" stroke-linecap="round" stroke-opacity="0.7"/>
+  <rect x="808" y="126" width="252" height="132" rx="32" fill="#FFFFFF" fill-opacity="0.28"/>
+  <text x="934" y="188" text-anchor="middle" fill="#6C4A35" font-family="Arial, Helvetica, sans-serif" font-size="32" font-weight="700">Midday</text>
+  <text x="934" y="232" text-anchor="middle" fill="#8C6551" font-family="Arial, Helvetica, sans-serif" font-size="22" font-weight="600">spoonful</text>
+</svg>
