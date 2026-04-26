@@ -1,8 +1,9 @@
 'use client';
 
 import Image from 'next/image';
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { ChevronDownIcon } from '@/components/ui-icons';
+import { reviewsData, categories } from '@/data/reviews';
 import type { ProductReview } from '@/data/maska';
 
 type CustomerReviewShowcaseProps = {
@@ -11,35 +12,35 @@ type CustomerReviewShowcaseProps = {
   mediaCards: Array<{ title: string; caption: string; src: string }>;
 };
 
-type MoodKey = 'simple' | 'classic' | 'joyful' | 'vibrant' | 'premium';
+type MoodKey = typeof categories[number];
 
 const moodTabs: Array<{ key: MoodKey; label: string; className: string; activeClassName: string }> = [
   {
-    key: 'simple',
+    key: 'Simple',
     label: 'Simple',
     className: 'border-[#f6cf68] text-[#7d3d0f] bg-[#fff8df]',
     activeClassName: 'shadow-[0_8px_18px_rgba(247,203,98,0.34)]',
   },
   {
-    key: 'classic',
+    key: 'Classic',
     label: 'Classic',
     className: 'border-[#f1bf2d] text-[#9b4f0d] bg-[#fff8e8]',
     activeClassName: 'shadow-[0_8px_18px_rgba(241,191,45,0.28)]',
   },
   {
-    key: 'joyful',
+    key: 'Joyful',
     label: 'Joyful',
     className: 'border-[#f62c90] text-white bg-[#f10c7a]',
     activeClassName: 'shadow-[0_10px_22px_rgba(241,12,122,0.35)]',
   },
   {
-    key: 'vibrant',
+    key: 'Vibrant',
     label: 'Vibrant',
     className: 'border-[#cfb7ff] text-[#6c2ed5] bg-[#f3edff]',
     activeClassName: 'shadow-[0_8px_18px_rgba(191,164,255,0.28)]',
   },
   {
-    key: 'premium',
+    key: 'Premium',
     label: 'Premium',
     className: 'border-[#c9d2e1] text-[#223550] bg-[#f8fafc]',
     activeClassName: 'shadow-[0_8px_18px_rgba(174,188,208,0.18)]',
@@ -50,16 +51,24 @@ function StarRow({ rating }: { rating: number }) {
   return (
     <div className="flex items-center gap-1 text-[#ffb000]" aria-label={`${rating} out of 5 stars`}>
       {Array.from({ length: 5 }).map((_, index) => (
-        <span key={index}>★</span>
+        <span key={index} className={index < rating ? 'text-[#ffb000]' : 'text-[#d8c4b3]'}>
+          ★
+        </span>
       ))}
     </div>
   );
 }
 
-export function CustomerReviewShowcase({ title, reviews, mediaCards }: CustomerReviewShowcaseProps) {
-  const [selectedMood, setSelectedMood] = useState<MoodKey>('joyful');
-  const featured = reviews[0];
+export function CustomerReviewShowcase({ title, mediaCards }: CustomerReviewShowcaseProps) {
+  const [selectedMood, setSelectedMood] = useState<MoodKey>('Joyful');
   const previewImages = mediaCards.slice(0, 4);
+
+  const filteredReviews = useMemo(
+    () => reviewsData.filter((r) => r.category === selectedMood),
+    [selectedMood]
+  );
+
+  const featured = filteredReviews[0] ?? reviewsData[0];
 
   return (
     <section className="mt-16">
@@ -84,6 +93,9 @@ export function CustomerReviewShowcase({ title, reviews, mediaCards }: CustomerR
                   className={`rounded-[1.2rem] border px-5 py-3 text-[1rem] font-medium transition sm:px-6 ${tab.className} ${active ? tab.activeClassName : 'shadow-none'}`}
                 >
                   {tab.label}
+                  {active && filteredReviews.length > 0 && (
+                    <span className="ml-2 text-xs opacity-80">({filteredReviews.length})</span>
+                  )}
                 </button>
               );
             })}
@@ -128,23 +140,29 @@ export function CustomerReviewShowcase({ title, reviews, mediaCards }: CustomerR
 
           <article className="mt-12 rounded-[1.1rem] border border-[#edf0f4] bg-white px-6 py-7 shadow-[0_24px_55px_rgba(31,22,18,0.08)] sm:px-8 sm:py-8">
             <div className="flex flex-wrap items-center gap-3">
-              <span className="rounded-full bg-[#12c28d] px-4 py-2 text-sm font-semibold text-white shadow-[0_10px_20px_rgba(18,194,141,0.24)]">
-                ✓ Verified
+              <span className={`rounded-full px-4 py-2 text-sm font-semibold text-white shadow-[0_10px_20px_rgba(18,194,141,0.24)] ${featured.isVerified ? 'bg-[#12c28d]' : 'bg-[#9a7156]'}`}>
+                {featured.isVerified ? '✓ Verified' : 'Guest'}
               </span>
               <StarRow rating={featured.rating} />
             </div>
 
             <h3 className="mt-5 text-[2rem] font-medium tracking-[-0.02em] text-[#273244] sm:text-[2.4rem]">
-              Unexpectedly Nice
+              {featured.title}
             </h3>
 
             <p className="mt-8 max-w-5xl text-[1.02rem] leading-8 text-[#5b6780] sm:text-[1.1rem]">
-              “{featured.text}”
+              “{featured.content}”
             </p>
 
-            <button type="button" className="mt-4 text-sm font-semibold text-[#2c6df6] transition hover:text-[#1a57d1]">
-              Read more ↓
-            </button>
+            <div className="mt-6 flex items-center gap-4 text-sm text-[#8a7368]">
+              <span className="font-semibold text-[#201613]">{featured.author}</span>
+              <span>·</span>
+              <span>{featured.location}</span>
+              <span>·</span>
+              <span>{featured.date}</span>
+              <span>·</span>
+              <span className="rounded-full bg-[#f6ebe1] px-3 py-1 text-xs font-medium text-[#8a5530]">{featured.sizeVariant}</span>
+            </div>
           </article>
         </div>
       </div>

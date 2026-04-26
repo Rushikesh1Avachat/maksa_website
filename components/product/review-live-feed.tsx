@@ -1,10 +1,11 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import { Star, MapPin, Clock, Heart, MessageCircle, Share2, BadgeCheck, TrendingUp, Zap } from 'lucide-react';
+import { reviewsData } from '@/data/reviews';
 
 interface LiveReview {
-  id: number;
+  id: string;
   name: string;
   location: string;
   avatar: string;
@@ -19,108 +20,50 @@ interface LiveReview {
   tags: string[];
 }
 
-const liveReviews: LiveReview[] = [
-  {
-    id: 1,
-    name: 'Meera Shah',
-    location: 'Mumbai',
-    avatar: 'MS',
-    rating: 5,
-    title: 'Smooth taste, premium feel',
-    text: 'The brand feels thoughtful from packaging to texture. It is the kind of snack I reach for when I want something simple but special. The chocolate salvation has this rich, dark chocolate note that does not feel artificial at all.',
-    time: 'Just now',
-    verified: true,
-    likes: 42,
-    replies: 5,
-    highlight: 'Top review this week',
-    tags: ['Texture', 'Premium', 'Repeat buy'],
-  },
-  {
-    id: 2,
-    name: 'Arjun Das',
-    location: 'Bengaluru',
-    avatar: 'AD',
-    rating: 5,
-    title: 'Very easy to keep in rotation',
-    text: 'The product works for breakfast, post-workout, and little evening cravings. It does not feel too heavy and still tastes satisfying. I have tried many peanut butters but this one stays on my shelf permanently.',
-    time: '2 min ago',
-    verified: true,
-    likes: 31,
-    replies: 3,
-    tags: ['Versatile', 'Daily use', 'Fitness'],
-  },
-  {
-    id: 3,
-    name: 'Ira Kapoor',
-    location: 'Delhi',
-    avatar: 'IK',
-    rating: 4,
-    title: 'Good balance of taste and value',
-    text: 'There is a clear premium direction here. The flavor is bold enough to stand out, but the product still feels daily-use friendly. My only wish is for a larger family pack at a better price point.',
-    time: '5 min ago',
-    verified: true,
-    likes: 28,
-    replies: 7,
-    tags: ['Value', 'Taste', 'Family'],
-  },
-  {
-    id: 4,
-    name: 'Kunal Mehta',
-    location: 'Pune',
-    avatar: 'KM',
-    rating: 5,
-    title: 'Family favorite very quickly',
-    text: 'Once opened, this product does not last long at home. Everyone finds a different use for it — my wife spreads it on toast, my daughter dips apple slices, and I eat it straight from the jar. Easy to repurchase.',
-    time: '8 min ago',
-    verified: true,
-    likes: 56,
-    replies: 12,
-    highlight: 'Most helpful',
-    tags: ['Family', 'Versatile', 'Giftable'],
-  },
-  {
-    id: 5,
-    name: 'Priya Sharma',
-    location: 'Chennai',
-    avatar: 'PS',
-    rating: 5,
-    title: 'Gifted to 3 friends already',
-    text: 'The jar alone makes this gift-worthy. I have sent it to three friends for their birthdays and each one asked me where I bought it. The ribbon-ready packaging is a nice touch.',
-    time: '12 min ago',
-    verified: false,
-    likes: 89,
-    replies: 15,
-    highlight: 'Trending',
-    tags: ['Gift', 'Packaging', 'Social'],
-  },
-  {
-    id: 6,
-    name: 'Rahul Verma',
-    location: 'Jaipur',
-    avatar: 'RV',
-    rating: 5,
-    title: 'The chocolate note is just right',
-    text: 'Not too sweet, not too bitter. The dark chocolate flavor feels premium and the peanut butter base is smooth without being runny. Perfect on warm toast — it melts just slightly.',
-    time: '18 min ago',
-    verified: true,
-    likes: 34,
-    replies: 4,
-    tags: ['Chocolate', 'Toast', 'Texture'],
-  },
-];
+const tagPool = ['Texture', 'Taste', 'Packaging', 'Gift', 'Breakfast', 'Versatile', 'Premium', 'Healthy', 'Chocolate'];
+const timePhrases = ['Just now', '2 min ago', '5 min ago', '8 min ago', '12 min ago', '18 min ago', '25 min ago', '32 min ago'];
+
+function seededRandom(seed: string, min: number, max: number): number {
+  let hash = 0;
+  for (let i = 0; i < seed.length; i++) {
+    hash = ((hash << 5) - hash) + seed.charCodeAt(i);
+    hash |= 0;
+  }
+  const normalized = (Math.abs(hash) % 1000) / 1000;
+  return Math.floor(normalized * (max - min + 1)) + min;
+}
+
+function mapToLiveReviews(): LiveReview[] {
+  return reviewsData.map((review, index) => ({
+    id: review.id,
+    name: review.author,
+    location: review.location,
+    avatar: review.author.split(' ').map((n) => n[0]).join('').slice(0, 2).toUpperCase(),
+    rating: review.rating,
+    title: review.title,
+    text: review.content,
+    time: timePhrases[index % timePhrases.length],
+    verified: review.isVerified,
+    likes: review.likes || seededRandom(review.id + 'likes', 20, 100),
+    replies: review.helpful || seededRandom(review.id + 'replies', 1, 15),
+    highlight: index === 0 ? 'Top review this week' : index === 3 ? 'Most helpful' : undefined,
+    tags: [tagPool[index % tagPool.length], tagPool[(index + 2) % tagPool.length]],
+  }));
+}
 
 export function ReviewLiveFeed() {
   const [visibleCount, setVisibleCount] = useState(4);
-  const [animatedIds, setAnimatedIds] = useState<Set<number>>(new Set());
+  const [animatedIds, setAnimatedIds] = useState<Set<string>>(new Set());
+
+  const liveReviews = useMemo(() => mapToLiveReviews(), []);
 
   useEffect(() => {
-    // Staggered entrance animation
     liveReviews.slice(0, visibleCount).forEach((review, index) => {
       setTimeout(() => {
         setAnimatedIds((prev) => new Set([...prev, review.id]));
       }, index * 150);
     });
-  }, [visibleCount]);
+  }, [visibleCount, liveReviews]);
 
   const showMore = () => setVisibleCount((prev) => Math.min(prev + 2, liveReviews.length));
 
@@ -218,15 +161,15 @@ export function ReviewLiveFeed() {
 
                 {/* Actions */}
                 <div className="mt-5 flex items-center gap-5 border-t border-[#f1e4d7] pt-4">
-                  <button className="flex items-center gap-1.5 text-sm text-[#8a7368] transition hover:text-[#e11d48]">
+                  <button type="button" className="flex items-center gap-1.5 text-sm text-[#8a7368] transition hover:text-[#e11d48]">
                     <Heart className="h-4 w-4" />
                     {review.likes}
                   </button>
-                  <button className="flex items-center gap-1.5 text-sm text-[#8a7368] transition hover:text-[#9d531c]">
+                  <button type="button" className="flex items-center gap-1.5 text-sm text-[#8a7368] transition hover:text-[#9d531c]">
                     <MessageCircle className="h-4 w-4" />
                     {review.replies}
                   </button>
-                  <button className="flex items-center gap-1.5 text-sm text-[#8a7368] transition hover:text-[#9d531c]">
+                  <button type="button" className="flex items-center gap-1.5 text-sm text-[#8a7368] transition hover:text-[#9d531c]">
                     <Share2 className="h-4 w-4" />
                     Share
                   </button>
@@ -237,6 +180,7 @@ export function ReviewLiveFeed() {
 
           {visibleCount < liveReviews.length && (
             <button
+              type="button"
               onClick={showMore}
               className="w-full rounded-[1.25rem] border border-[#e9ddd2] bg-white py-4 text-sm font-semibold text-[#9d531c] transition hover:bg-[#f8efe7]"
             >
@@ -279,6 +223,7 @@ export function ReviewLiveFeed() {
               ].map((topic) => (
                 <button
                   key={topic.tag}
+                  type="button"
                   className="rounded-full bg-[#f8efe7] px-3 py-1.5 text-xs font-medium text-[#6a5448] transition hover:bg-[#f2e4d4]"
                 >
                   {topic.tag} <span className="text-[#9a7156]">({topic.count})</span>
@@ -293,7 +238,7 @@ export function ReviewLiveFeed() {
             <p className="mt-2 text-xs leading-5 text-[#6a5448]">
               Share your experience and help others decide. Your review could be featured!
             </p>
-            <button className="mt-4 w-full rounded-full bg-[#261813] py-3 text-sm font-semibold text-white transition hover:bg-[#3d2418]">
+            <button type="button" className="mt-4 w-full rounded-full bg-[#261813] py-3 text-sm font-semibold text-white transition hover:bg-[#3d2418]">
               Write a Review
             </button>
           </div>

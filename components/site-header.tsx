@@ -3,8 +3,11 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import { useState } from 'react';
-import { BagIcon, HeartIcon, SearchIcon, UserIcon } from '@/components/ui-icons';
+import { BagIcon, HeartIcon, SearchIcon, UserIcon, SocialXIcon } from '@/components/ui-icons';
+import { useCartStore } from '@/hooks/useCartStore';
+import { useWishlistStore } from '@/hooks/useWishlistStore';
 import { collectionMenuItems } from '@/data/maska';
+import { useRouter } from 'next/navigation';
 
 const navItems = [
   { label: 'Home', href: '/' },
@@ -16,6 +19,23 @@ const navItems = [
 
 export default function SiteHeader() {
   const [productsOpen, setProductsOpen] = useState(false);
+  const [searchOpen, setSearchOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+  const router = useRouter();
+
+  const cartTotal = useCartStore((s) => s.getTotalItems());
+  const wishlistTotal = useWishlistStore((s) => s.items.length);
+  const cartHydrated = useCartStore((s) => s.hasHydrated);
+  const wishlistHydrated = useWishlistStore((s) => s.hasHydrated);
+
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (searchQuery.trim()) {
+      router.push(`/products?q=${encodeURIComponent(searchQuery.trim())}`);
+      setSearchOpen(false);
+      setSearchQuery('');
+    }
+  };
 
   return (
     <header className="sticky top-0 z-30 bg-white">
@@ -102,6 +122,7 @@ export default function SiteHeader() {
             <button
               type="button"
               aria-label="Search"
+              onClick={() => setSearchOpen(true)}
               className="flex h-10 w-10 items-center justify-center text-[#6b4022] transition hover:opacity-75"
             >
               <SearchIcon className="h-[22px] w-[22px]" />
@@ -118,23 +139,83 @@ export default function SiteHeader() {
             <Link
               href="/wishlist"
               aria-label="Wishlist"
-              className="flex h-10 w-10 items-center justify-center text-[#6b4022] transition hover:opacity-75"
+              className="relative flex h-10 w-10 items-center justify-center text-[#6b4022] transition hover:opacity-75"
             >
               <HeartIcon className="h-[22px] w-[22px]" />
+              {wishlistHydrated && wishlistTotal > 0 && (
+                <span className="absolute -right-1 -top-1 flex h-5 w-5 items-center justify-center rounded-full bg-[#e11d48] text-[10px] font-bold text-white">
+                  {wishlistTotal}
+                </span>
+              )}
             </Link>
 
             <Link
               href="/bag"
               aria-label="Bag"
-              className="flex h-10 w-10 items-center justify-center text-[#6b4022] transition hover:opacity-75"
+              className="relative flex h-10 w-10 items-center justify-center text-[#6b4022] transition hover:opacity-75"
             >
               <BagIcon className="h-[22px] w-[22px]" />
+              {cartHydrated && cartTotal > 0 && (
+                <span className="absolute -right-1 -top-1 flex h-5 w-5 items-center justify-center rounded-full bg-[#261813] text-[10px] font-bold text-white">
+                  {cartTotal}
+                </span>
+              )}
             </Link>
           </div>
         </div>
       </div>
+
+      {/* Search Overlay */}
+      {searchOpen && (
+        <div className="fixed inset-0 z-50 bg-black/40 backdrop-blur-sm" onClick={() => setSearchOpen(false)}>
+          <div
+            className="absolute left-1/2 top-24 w-full max-w-2xl -translate-x-1/2 px-4"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <form onSubmit={handleSearch} className="overflow-hidden rounded-[1.5rem] bg-white shadow-[0_24px_60px_rgba(0,0,0,0.2)]">
+              <div className="flex items-center gap-3 px-6 py-4">
+                <SearchIcon className="h-5 w-5 text-[#9a7156]" />
+                <input
+                  type="text"
+                  autoFocus
+                  placeholder="Search peanut butter, granola, gift boxes..."
+                  className="flex-1 bg-transparent text-lg text-[#1f1612] outline-none placeholder:text-[#b8a394]"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                />
+                <button
+                  type="button"
+                  onClick={() => setSearchOpen(false)}
+                  className="flex h-8 w-8 items-center justify-center rounded-full text-[#8a7368] transition hover:bg-[#f8efe7]"
+                >
+                  <SocialXIcon className="h-4 w-4" />
+                </button>
+              </div>
+              <div className="border-t border-[#f1e4d7] px-6 py-3">
+                <div className="text-xs uppercase tracking-[0.25em] text-[#9a7156]">Popular searches</div>
+                <div className="mt-2 flex flex-wrap gap-2">
+                  {['Chocolate Salvation', 'Unsweetened', 'Granola', 'Gift Box', 'Nutrition Bar'].map((term) => (
+                    <button
+                      key={term}
+                      type="button"
+                      onClick={() => {
+                        router.push(`/products?q=${encodeURIComponent(term)}`);
+                        setSearchOpen(false);
+                      }}
+                      className="rounded-full border border-[#e9ddd2] bg-[#faf6f2] px-3 py-1.5 text-xs font-medium text-[#6a5448] transition hover:bg-[#f2e4d4]"
+                    >
+                      {term}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </header>
   );
 }
 
 export { SiteHeader };
+

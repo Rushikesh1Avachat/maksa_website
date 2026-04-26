@@ -1,13 +1,15 @@
 'use client';
 
 import { useState } from 'react';
-import { Activity, Grid3X3, BookOpen, Radio, ChevronRight } from 'lucide-react';
+import { Activity, Grid3X3, BookOpen, Radio, Mic2, Timer, ChevronRight } from 'lucide-react';
 import { ReviewSocialHub } from './review-social-hub';
 import { ReviewUgcMosaic } from './review-ugc-mosaic';
 import { ReviewStoryCards } from './review-story-cards';
 import { ReviewLiveFeed } from './review-live-feed';
+import { ReviewVoiceNotes } from './review-voice-notes';
+import { ReviewTrustTimeline } from './review-trust-timeline';
 
-type ReviewMode = 'social' | 'ugc' | 'story' | 'live';
+type ReviewMode = 'social' | 'ugc' | 'story' | 'live' | 'voice' | 'timeline';
 
 const modes: Array<{
   id: ReviewMode;
@@ -49,6 +51,22 @@ const modes: Array<{
     color: 'border-[#e9ddd2] bg-white text-[#6a5448]',
     activeColor: 'border-[#0fbf78] bg-[#0fbf78] text-white shadow-[0_8px_24px_rgba(15,191,120,0.25)]',
   },
+  {
+    id: 'voice',
+    label: 'Voice Notes',
+    description: 'Chat-style voice note review bubbles',
+    icon: Mic2,
+    color: 'border-[#e9ddd2] bg-white text-[#6a5448]',
+    activeColor: 'border-[#8b5cf6] bg-[#8b5cf6] text-white shadow-[0_8px_24px_rgba(139,92,246,0.25)]',
+  },
+  {
+    id: 'timeline',
+    label: 'Trust Timeline',
+    description: 'Horizontal customer journey milestones',
+    icon: Timer,
+    color: 'border-[#e9ddd2] bg-white text-[#6a5448]',
+    activeColor: 'border-[#ec4899] bg-[#ec4899] text-white shadow-[0_8px_24px_rgba(236,72,153,0.25)]',
+  },
 ];
 
 export function ReviewShowcase() {
@@ -61,22 +79,23 @@ export function ReviewShowcase() {
         <div className="text-center">
           <div className="text-xs uppercase tracking-[0.35em] text-[#9a7156]">Review Showcase</div>
           <h2 className="mt-3 text-4xl font-semibold tracking-[-0.02em] text-[#1f1612] sm:text-5xl">
-            Four ways to tell the same story.
+            Six ways to tell the same story.
           </h2>
           <p className="mx-auto mt-4 max-w-2xl text-base leading-7 text-[#6a5448]">
-            Each layout uses the same Maska voice but changes the structure so the section can fit different product pages, campaigns, or audience moods.
+  
           </p>
         </div>
       </div>
 
       {/* Mode Navigation */}
       <div className="mx-auto max-w-[1600px] px-4 pt-10 sm:px-6 lg:px-8">
-        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
           {modes.map((mode) => {
             const isActive = activeMode === mode.id;
             return (
               <button
                 key={mode.id}
+                type="button"
                 onClick={() => setActiveMode(mode.id)}
                 className={`group relative flex items-start gap-4 rounded-[1.5rem] border p-5 text-left transition-all duration-300 ${
                   isActive ? mode.activeColor : `${mode.color} hover:border-[#c78f56] hover:shadow-[0_4px_16px_rgba(199,143,86,0.1)]`
@@ -108,7 +127,9 @@ export function ReviewShowcase() {
             activeMode === 'social' ? 'bg-[radial-gradient(circle_at_top,_rgba(191,126,61,0.08),_transparent_60%)]' :
             activeMode === 'ugc' ? 'bg-[radial-gradient(circle_at_top,_rgba(157,83,28,0.08),_transparent_60%)]' :
             activeMode === 'story' ? 'bg-[radial-gradient(circle_at_top,_rgba(199,143,86,0.08),_transparent_60%)]' :
-            'bg-[radial-gradient(circle_at_top,_rgba(15,191,120,0.06),_transparent_60%)]'
+            activeMode === 'live' ? 'bg-[radial-gradient(circle_at_top,_rgba(15,191,120,0.06),_transparent_60%)]' :
+            activeMode === 'voice' ? 'bg-[radial-gradient(circle_at_top,_rgba(139,92,246,0.06),_transparent_60%)]' :
+            'bg-[radial-gradient(circle_at_top,_rgba(236,72,153,0.06),_transparent_60%)]'
           }`}
         />
 
@@ -117,6 +138,8 @@ export function ReviewShowcase() {
           {activeMode === 'ugc' && <ReviewUgcMosaic />}
           {activeMode === 'story' && <ReviewStoryCards />}
           {activeMode === 'live' && <ReviewLiveFeed />}
+          {activeMode === 'voice' && <ReviewVoiceNotes />}
+          {activeMode === 'timeline' && <ReviewTrustTimeline />}
         </div>
       </div>
 
@@ -128,16 +151,15 @@ export function ReviewShowcase() {
             Join 2,400+ happy customers who have made Maska their daily ritual. Free shipping on orders above Rs. 499.
           </p>
           <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
-            <button className="rounded-full bg-white px-8 py-3.5 text-sm font-semibold text-[#261813] transition hover:bg-[#fff8f1]">
+            <a href="/products/maska-peanut-butter-chocolate-salvation" className="rounded-full bg-white px-8 py-3.5 text-sm font-semibold text-[#261813] transition hover:bg-[#fff8f1]">
               Add to Cart — Rs. 322.2
-            </button>
-            <button className="rounded-full border border-white/25 bg-white/10 px-8 py-3.5 text-sm font-semibold text-white backdrop-blur transition hover:bg-white/15">
+            </a>
+            <a href="/assignment" className="rounded-full border border-white/25 bg-white/10 px-8 py-3.5 text-sm font-semibold text-white backdrop-blur transition hover:bg-white/15">
               View All Reviews
-            </button>
+            </a>
           </div>
         </div>
       </div>
     </section>
   );
 }
-

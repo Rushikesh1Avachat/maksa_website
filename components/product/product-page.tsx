@@ -52,6 +52,10 @@ export function ProductPage({ product }: ProductPageProps) {
           <ProductGallery images={product.images} title={product.shortTitle} />
           <ProductPurchasePanel
             productTitle={product.title}
+            shortTitle={product.shortTitle}
+            slug={product.slug}
+            image={product.images[0]}
+            category={product.category}
             price={selectedPrice}
             selectedVariant={selectedVariant}
             quantity={quantity}

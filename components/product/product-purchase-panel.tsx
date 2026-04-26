@@ -1,4 +1,11 @@
+'use client';
+
+import { useState } from 'react';
+import Link from 'next/link';
+import { Heart, ShoppingBag, Check, Minus, Plus } from 'lucide-react';
 import { getDiscountPercent } from '@/utils/maska';
+import { useCartStore } from '@/hooks/useCartStore';
+import { useWishlistStore } from '@/hooks/useWishlistStore';
 
 type Variant = {
   label: '300g' | '500g' | '1kg';
@@ -8,6 +15,10 @@ type Variant = {
 
 type ProductPurchasePanelProps = {
   productTitle: string;
+  shortTitle: string;
+  slug: string;
+  image: string;
+  category: string;
   price: Variant;
   selectedVariant: Variant['label'];
   quantity: number;
@@ -20,6 +31,10 @@ type ProductPurchasePanelProps = {
 
 export function ProductPurchasePanel({
   productTitle,
+  shortTitle,
+  slug,
+  image,
+  category,
   price,
   selectedVariant,
   quantity,
@@ -29,7 +44,39 @@ export function ProductPurchasePanel({
   selectedTone,
   onToneChange,
 }: ProductPurchasePanelProps) {
+  const [addedToCart, setAddedToCart] = useState(false);
   const discount = getDiscountPercent(price.regularPrice, price.salePrice);
+
+  const addItem = useCartStore((s) => s.addItem);
+  const { toggleItem, isInWishlist } = useWishlistStore();
+  const inWishlist = isInWishlist(slug);
+
+  const handleAddToCart = () => {
+    addItem({
+      slug,
+      title: productTitle,
+      shortTitle,
+      image,
+      variant: selectedVariant,
+      salePrice: price.salePrice,
+      regularPrice: price.regularPrice,
+      quantity,
+    });
+    setAddedToCart(true);
+    setTimeout(() => setAddedToCart(false), 2000);
+  };
+
+  const handleWishlistToggle = () => {
+    toggleItem({
+      slug,
+      title: productTitle,
+      shortTitle,
+      image,
+      salePrice: price.salePrice,
+      regularPrice: price.regularPrice,
+      category,
+    });
+  };
 
   return (
     <aside className="rounded-[2rem] border border-white/80 bg-white/78 p-6 shadow-[0_30px_80px_rgba(68,42,26,0.09)] backdrop-blur">
@@ -102,22 +149,57 @@ export function ProductPurchasePanel({
         <div className="text-sm font-semibold uppercase tracking-[0.2em] text-[#8a6653]">Quantity</div>
         <div className="mt-3 flex w-fit items-center overflow-hidden rounded-2xl border border-[#dfd2c6] bg-white">
           <button type="button" onClick={() => onQuantityChange(Math.max(1, quantity - 1))} className="px-4 py-3 text-lg text-[#3f2a22] transition hover:bg-[#f7efe8]">
-            -
+            <Minus className="h-4 w-4" />
           </button>
           <div className="min-w-14 px-5 py-3 text-center text-sm font-semibold text-[#241713]">{quantity}</div>
           <button type="button" onClick={() => onQuantityChange(quantity + 1)} className="px-4 py-3 text-lg text-[#3f2a22] transition hover:bg-[#f7efe8]">
-            +
+            <Plus className="h-4 w-4" />
           </button>
         </div>
       </div>
 
       <div className="mt-6 grid gap-3 sm:grid-cols-2">
-        <button type="button" className="rounded-2xl bg-[#221713] px-5 py-4 text-sm font-semibold text-white transition hover:bg-[#37241c]">
-          Add to cart
+        <button
+          type="button"
+          onClick={handleAddToCart}
+          className={`flex items-center justify-center gap-2 rounded-2xl px-5 py-4 text-sm font-semibold text-white transition ${
+            addedToCart
+              ? 'bg-[#0fbf78]'
+              : 'bg-[#221713] hover:bg-[#37241c]'
+          }`}
+        >
+          {addedToCart ? (
+            <>
+              <Check className="h-4 w-4" /> Added
+            </>
+          ) : (
+            <>
+              <ShoppingBag className="h-4 w-4" /> Add to cart
+            </>
+          )}
         </button>
-        <button type="button" className="rounded-2xl border border-[#dfd2c6] bg-white px-5 py-4 text-sm font-semibold text-[#201613] transition hover:bg-[#faf5ef]">
-          Buy now
+        <button
+          type="button"
+          onClick={handleWishlistToggle}
+          className={`flex items-center justify-center gap-2 rounded-2xl border px-5 py-4 text-sm font-semibold transition ${
+            inWishlist
+              ? 'border-[#e11d48] bg-[#fff0f3] text-[#e11d48]'
+              : 'border-[#dfd2c6] bg-white text-[#201613] hover:bg-[#faf5ef]'
+          }`}
+        >
+          <Heart className={`h-4 w-4 ${inWishlist ? 'fill-current' : ''}`} />
+          {inWishlist ? 'Saved' : 'Wishlist'}
         </button>
+      </div>
+
+      <div className="mt-4">
+        <Link
+          href="/bag"
+          className="flex items-center justify-center gap-2 rounded-2xl border border-[#dfd2c6] bg-white px-5 py-4 text-sm font-semibold text-[#201613] transition hover:bg-[#faf5ef]"
+        >
+          <ShoppingBag className="h-4 w-4" />
+          Go to bag & checkout
+        </Link>
       </div>
     </aside>
   );

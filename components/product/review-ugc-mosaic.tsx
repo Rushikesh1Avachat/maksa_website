@@ -1,95 +1,66 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import Image from 'next/image';
 import { Star, MapPin, Heart, MessageCircle, Filter } from 'lucide-react';
+import { reviewsData } from '@/data/reviews';
 
 const categories = ['All', 'Texture', 'Taste', 'Packaging', 'Gift', 'Breakfast'];
 
-const ugcReviews = [
-  {
-    id: 1,
-    image: '/assets/maska-toast.svg',
-    author: 'Meera Shah',
-    location: 'Mumbai',
-    rating: 5,
-    title: 'Perfect morning toast companion',
-    text: 'The chocolate layer is rich but not overwhelming. My kids love it too!',
-    category: 'Breakfast',
-    likes: 234,
-    comments: 18,
-    featured: true,
-  },
-  {
-    id: 2,
-    image: '/assets/maska-spoon.svg',
-    author: 'Arjun Das',
-    location: 'Bengaluru',
-    rating: 5,
-    title: 'Midday spoon snack ritual',
-    text: 'Thick, satisfying texture. I keep a jar at my desk now.',
-    category: 'Texture',
-    likes: 189,
-    comments: 12,
-    featured: false,
-  },
-  {
-    id: 3,
-    image: '/assets/maska-gift.svg',
-    author: 'Ira Kapoor',
-    location: 'Delhi',
-    rating: 4,
-    title: 'Gifted to my sister',
-    text: 'The jar looks premium on a shelf. Great gifting option.',
-    category: 'Gift',
-    likes: 156,
-    comments: 8,
-    featured: true,
-  },
-  {
-    id: 4,
-    image: '/assets/maska-hero-jar.svg',
-    author: 'Kunal Mehta',
-    location: 'Pune',
-    rating: 5,
-    title: 'Family favorite in one week',
-    text: 'Everyone found their own way to enjoy it. Already ordering more.',
-    category: 'Taste',
-    likes: 312,
-    comments: 24,
-    featured: false,
-  },
-  {
-    id: 5,
-    image: '/assets/maska-toast.svg',
-    author: 'Priya Nair',
-    location: 'Chennai',
-    rating: 5,
-    title: 'Smooth spread, no mess',
-    text: 'Love how easily it spreads. No oily separation like other brands.',
-    category: 'Texture',
-    likes: 98,
-    comments: 5,
-    featured: false,
-  },
-  {
-    id: 6,
-    image: '/assets/maska-gift.svg',
-    author: 'Rahul Verma',
-    location: 'Jaipur',
-    rating: 4,
-    title: 'Festive hamper essential',
-    text: 'Added this to my Diwali hampers. Everyone asked where I got it.',
-    category: 'Gift',
-    likes: 267,
-    comments: 15,
-    featured: true,
-  },
+const productImages = [
+  '/assets/maska-toast.svg',
+  '/assets/maska-spoon.svg',
+  '/assets/maska-gift.svg',
+  '/assets/maska-hero-jar.svg',
+  '/assets/maska-toast.svg',
+  '/assets/maska-gift.svg',
 ];
+
+interface UgcReview {
+  id: string;
+  image: string;
+  author: string;
+  location: string;
+  rating: number;
+  title: string;
+  text: string;
+  category: string;
+  likes: number;
+  comments: number;
+  featured: boolean;
+}
+
+function seededRandom(seed: string, min: number, max: number): number {
+  let hash = 0;
+  for (let i = 0; i < seed.length; i++) {
+    hash = ((hash << 5) - hash) + seed.charCodeAt(i);
+    hash |= 0;
+  }
+  const normalized = (Math.abs(hash) % 1000) / 1000;
+  return Math.floor(normalized * (max - min + 1)) + min;
+}
+
+function mapToUgcReviews(): UgcReview[] {
+  return reviewsData.map((review, index) => ({
+    id: review.id,
+    image: productImages[index % productImages.length],
+    author: review.author,
+    location: review.location,
+    rating: review.rating,
+    title: review.title,
+    text: review.content,
+    category: categories[(index % (categories.length - 1)) + 1],
+    likes: review.likes || seededRandom(review.id + 'likes', 50, 350),
+    comments: review.shares || seededRandom(review.id + 'comments', 2, 25),
+    featured: index < 3,
+  }));
+}
 
 export function ReviewUgcMosaic() {
   const [activeCategory, setActiveCategory] = useState('All');
-  const [hoveredId, setHoveredId] = useState<number | null>(null);
+  const [hoveredId, setHoveredId] = useState<string | null>(null);
+
+  const ugcReviews = useMemo(() => mapToUgcReviews(), []);
 
   const filtered = activeCategory === 'All'
     ? ugcReviews
@@ -104,12 +75,12 @@ export function ReviewUgcMosaic() {
           <p className="mt-2 text-sm text-[#6a5448]">Real photos and stories from real customers — hover to read their experience.</p>
         </div>
 
-        {/* Category Filter */}
         <div className="flex flex-wrap gap-2">
           <Filter className="h-4 w-4 text-[#9a7156]" />
           {categories.map((cat) => (
             <button
               key={cat}
+              type="button"
               onClick={() => setActiveCategory(cat)}
               className={`rounded-full px-4 py-2 text-xs font-medium transition ${
                 activeCategory === cat
@@ -123,7 +94,6 @@ export function ReviewUgcMosaic() {
         </div>
       </div>
 
-      {/* Masonry-style Grid */}
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {filtered.map((review, index) => (
           <div
@@ -134,7 +104,6 @@ export function ReviewUgcMosaic() {
             onMouseEnter={() => setHoveredId(review.id)}
             onMouseLeave={() => setHoveredId(null)}
           >
-            {/* Image Container */}
             <div className={`relative ${review.featured && index === 0 ? 'aspect-[16/9]' : 'aspect-square'} bg-[#f8efe7]`}>
               <Image
                 src={review.image}
@@ -143,7 +112,6 @@ export function ReviewUgcMosaic() {
                 className="object-contain p-6 transition-transform duration-500 group-hover:scale-105"
               />
 
-              {/* Hover Overlay */}
               <div
                 className={`absolute inset-0 bg-gradient-to-t from-[#261813]/95 via-[#261813]/60 to-transparent transition-opacity duration-300 ${
                   hoveredId === review.id ? 'opacity-100' : 'opacity-0'
@@ -183,12 +151,10 @@ export function ReviewUgcMosaic() {
                 </div>
               </div>
 
-              {/* Category Badge */}
               <div className="absolute left-4 top-4 rounded-full bg-white/90 px-3 py-1 text-xs font-medium text-[#261813] backdrop-blur">
                 {review.category}
               </div>
 
-              {/* Featured Badge */}
               {review.featured && (
                 <div className="absolute right-4 top-4 rounded-full bg-[#f2c57e] px-3 py-1 text-xs font-semibold text-[#261813]">
                   Featured
@@ -199,7 +165,6 @@ export function ReviewUgcMosaic() {
         ))}
       </div>
 
-      {/* Stats Bar */}
       <div className="mt-8 flex flex-wrap items-center justify-center gap-8 rounded-[1.5rem] border border-[#e9ddd2] bg-white p-6 shadow-[0_12px_32px_rgba(59,35,22,0.06)]">
         {[
           { label: 'Customer Photos', value: '1,247' },

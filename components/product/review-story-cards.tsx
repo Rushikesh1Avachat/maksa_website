@@ -1,12 +1,13 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { Star, ChevronDown, Quote, Clock, ThumbsUp, Share2, Bookmark } from 'lucide-react';
+import { reviewsData } from '@/data/reviews';
 
 type Mood = 'joyful' | 'thoughtful' | 'surprised' | 'obsessed';
 
 interface StoryReview {
-  id: number;
+  id: string;
   author: string;
   location: string;
   avatar: string;
@@ -28,94 +29,65 @@ const moodStyles: Record<Mood, { bg: string; text: string; border: string; emoji
   obsessed: { bg: 'bg-[#f5f0ff]', text: 'text-[#6c2ed5]', border: 'border-[#c4b5fd]', emoji: '🔥' },
 };
 
-const storyReviews: StoryReview[] = [
-  {
-    id: 1,
-    author: 'Birendra Shukla',
-    location: 'Ranchi',
-    avatar: 'BS',
-    rating: 5,
-    mood: 'surprised',
-    title: 'Unexpectedly Nice',
-    preview: 'Woke up feeling bleh and grabbed this from the shelf...',
-    fullStory: 'Woke up feeling bleh and grabbed this item from the shelf — I thought what could go wrong? It is like a thick spread of roasted peanuts with no weird stuff in it. The crunchiness? Yeah, it is there, kinda satisfying. Honestly I was not expecting much but it totally hit different. The earthy flavor is nice, not sweet or artificial at all. Love that it is clean too, no junk added. Perfect for my toast or even just straight from the jar. Definitely keeping this around.',
-    timeline: [
-      { label: 'First Impression', text: 'Thick, rich texture — not oily like other brands' },
-      { label: 'Taste Test', text: 'Chocolate note is subtle, peanut flavor shines through' },
-      { label: 'Daily Use', text: 'Now my go-to breakfast spread for toast and smoothies' },
-    ],
-    likes: 342,
-    date: '23 Apr 2026',
-    verified: true,
-  },
-  {
-    id: 2,
-    author: 'Yukta Shah',
-    location: 'Gwalior',
-    avatar: 'YS',
-    rating: 5,
-    mood: 'joyful',
-    title: 'Healthy Surprise',
-    preview: 'Arre yaar never imagined I would relish health stuff...',
-    fullStory: 'Arre yaar, never imagined I would relish health stuff. Maska Butter ka unsweetened peanut butter — unexpectedly GOOD! That crunchy wala texture, it is like... satisfying somehow. Taste not bad, maybe I will munch again... or maybe not? Who am I kidding, I have already ordered my second jar. The glass jar looks so pretty on my kitchen shelf too.',
-    timeline: [
-      { label: 'Skeptical Start', text: 'Healthy = boring? Not this one!' },
-      { label: 'Texture Win', text: 'Crunchy bits make every bite interesting' },
-      { label: 'Repeat Buy', text: 'Second jar ordered within a week' },
-    ],
-    likes: 289,
-    date: '23 Apr 2026',
-    verified: true,
-  },
-  {
-    id: 3,
-    author: 'Shridam',
-    location: 'Hyderabad',
-    avatar: 'SH',
-    rating: 5,
-    mood: 'obsessed',
-    title: 'Therapeutic Spoon Snacking',
-    preview: 'I cannot believe I am stating this but consuming this with a spoon felt strangely therapeutic...',
-    fullStory: 'I cannot believe I am stating this but consuming this peanut butter with a spoon felt strangely therapeutic. The consistency is thick and crunchy — like a mini workout for my mouth. It is unsweetened so no odd aftertaste, just pure nutty delight. Even my dog was eyeing it like it was a treat lol. Knowing it is gluten-free and made with genuine peanuts makes it feel like a snack I can genuinely relish without guilt. Definitely worth a shot if you are into the healthier side of life. 5 stars all the way.',
-    timeline: [
-      { label: 'Discovery', text: 'Straight from the jar — no regrets' },
-      { label: 'Texture Love', text: 'Thick, crunchy, satisfying mouthfeel' },
-      { label: 'Guilt-Free', text: 'Clean ingredients = zero guilt snacking' },
-    ],
-    likes: 456,
-    date: '20 Apr 2026',
-    verified: false,
-  },
-  {
-    id: 4,
-    author: 'Kanha Agnihotri',
-    location: 'Noida',
-    avatar: 'KA',
-    rating: 5,
-    mood: 'thoughtful',
-    title: 'Surprisingly Good Vibes',
-    preview: 'Okay I usually dodge healthy snacks like the plague but this... wow...',
-    fullStory: 'Okay, I usually dodge healthy snacks like the plague but this peanut butter? Wow. It is thick, earthy, and feels like it is crafted from real food — which it is. The glass jar gives it that elegant vibe too. I was feeling all sentimental and strange when I tried it but it really struck me right. Just roasted peanuts, no junk, and it is surprisingly satisfying. 8 grams of protein too! Might just be my go-to now... who knew I would express that?',
-    timeline: [
-      { label: 'Initial Doubt', text: 'Healthy snacks are usually disappointing' },
-      { label: 'First Bite', text: 'Real food taste — earthy and authentic' },
-      { label: 'New Routine', text: 'Post-gym protein boost, tastes like dessert' },
-    ],
-    likes: 198,
-    date: '20 Apr 2026',
-    verified: true,
-  },
-];
+function mapCategoryToMood(category: string): Mood {
+  switch (category) {
+    case 'Joyful': return 'joyful';
+    case 'Simple': return 'thoughtful';
+    case 'Vibrant': return 'surprised';
+    case 'Premium': return 'obsessed';
+    case 'Classic': return 'joyful';
+    default: return 'thoughtful';
+  }
+}
+
+function generateTimeline(content: string): { label: string; text: string }[] {
+  const lines = content.split(/[.!?]+/).filter((s) => s.trim().length > 10);
+  return [
+    { label: 'First Impression', text: lines[0]?.trim().slice(0, 80) + '...' || 'Loved it from the first taste' },
+    { label: 'Deep Dive', text: lines[1]?.trim().slice(0, 80) + '...' || 'Texture and flavor on point' },
+    { label: 'Verdict', text: lines[2]?.trim().slice(0, 80) + '...' || 'Would definitely recommend' },
+  ];
+}
+
+function seededRandom(seed: string, min: number, max: number): number {
+  let hash = 0;
+  for (let i = 0; i < seed.length; i++) {
+    hash = ((hash << 5) - hash) + seed.charCodeAt(i);
+    hash |= 0;
+  }
+  const normalized = (Math.abs(hash) % 1000) / 1000;
+  return Math.floor(normalized * (max - min + 1)) + min;
+}
+
+function mapReviewsToStories(): StoryReview[] {
+  return reviewsData.map((review) => ({
+    id: review.id,
+    author: review.author,
+    location: review.location,
+    avatar: review.author.split(' ').map((n) => n[0]).join('').slice(0, 2).toUpperCase(),
+    rating: review.rating,
+    mood: mapCategoryToMood(review.category),
+    title: review.title,
+    preview: review.content.slice(0, 100) + '...',
+    fullStory: review.content,
+    timeline: generateTimeline(review.content),
+    likes: review.likes || seededRandom(review.id + 'likes', 100, 500),
+    date: review.date,
+    verified: review.isVerified,
+  }));
+}
 
 export function ReviewStoryCards() {
-  const [expandedId, setExpandedId] = useState<number | null>(null);
-  const [likedIds, setLikedIds] = useState<Set<number>>(new Set());
+  const [expandedId, setExpandedId] = useState<string | null>(null);
+  const [likedIds, setLikedIds] = useState<Set<string>>(new Set());
 
-  const toggleExpand = (id: number) => {
+  const storyReviews = useMemo(() => mapReviewsToStories(), []);
+
+  const toggleExpand = (id: string) => {
     setExpandedId(expandedId === id ? null : id);
   };
 
-  const toggleLike = (id: number) => {
+  const toggleLike = (id: string) => {
     setLikedIds((prev) => {
       const next = new Set(prev);
       if (next.has(id)) next.delete(id);
