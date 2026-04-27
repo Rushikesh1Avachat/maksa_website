@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import { useState } from 'react';
-import { BagIcon, HeartIcon, SearchIcon, UserIcon, SocialXIcon } from '@/components/ui-icons';
+import { SearchIcon, HeartIcon, BagIcon, SocialXIcon, ChevronDownIcon } from '@/components/ui-icons';
 import { useCartStore } from '@/hooks/useCartStore';
 import { useWishlistStore } from '@/hooks/useWishlistStore';
 import { collectionMenuItems } from '@/data/maska';
@@ -17,8 +17,18 @@ const navItems = [
   { label: 'Track My Order', href: '#' },
 ] as const;
 
+function MenuIcon({ className }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" aria-hidden="true" className={className}>
+      <path d="M4 7h16M4 12h16M4 17h16" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+    </svg>
+  );
+}
+
 export default function SiteHeader() {
   const [productsOpen, setProductsOpen] = useState(false);
+  const [mobileOpen, setMobileOpen] = useState(false);
+  const [mobileProductsOpen, setMobileProductsOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const router = useRouter();
@@ -39,6 +49,7 @@ export default function SiteHeader() {
 
   return (
     <header className="sticky top-0 z-30 bg-white">
+      {/* Yellow announcement banner */}
       <div className="overflow-hidden bg-[#4c2b0f] text-white">
         <div className="mx-auto flex h-[60px] max-w-[1600px] items-center justify-between px-6 font-semibold tracking-[0.02em] sm:px-10 lg:px-16">
           {Array.from({ length: 4 }).map((_, index) => (
@@ -49,8 +60,11 @@ export default function SiteHeader() {
         </div>
       </div>
 
+      {/* Main header bar */}
       <div className="border-b border-[#eadccf] bg-white">
         <div className="mx-auto flex h-[112px] max-w-[1600px] items-center justify-between px-6 sm:px-10 lg:px-16">
+
+          {/* Left: Logo + desktop nav */}
           <div className="flex items-center gap-8">
             <Link href="/" className="block shrink-0">
               <Image
@@ -63,6 +77,7 @@ export default function SiteHeader() {
               />
             </Link>
 
+            {/* Desktop navigation */}
             <nav className="hidden items-center gap-7 lg:flex">
               {navItems.map((item) => {
                 if (item.label !== 'Products') {
@@ -89,9 +104,7 @@ export default function SiteHeader() {
                       className="inline-flex items-center gap-2 text-[0.98rem] font-normal text-[#7a4f33] transition hover:text-[#221713]"
                     >
                       {item.label}
-                      <svg viewBox="0 0 24 24" aria-hidden="true" className="h-[14px] w-[14px]">
-                        <path d="M7 10l5 5 5-5" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
-                      </svg>
+                      <ChevronDownIcon className="h-[14px] w-[14px]" />
                     </Link>
 
                     <div
@@ -118,7 +131,9 @@ export default function SiteHeader() {
             </nav>
           </div>
 
+          {/* Right: icons + mobile hamburger */}
           <div className="flex items-center gap-4 text-[#6b4022] lg:gap-5">
+            {/* Search */}
             <button
               type="button"
               aria-label="Search"
@@ -128,14 +143,19 @@ export default function SiteHeader() {
               <SearchIcon className="h-[22px] w-[22px]" />
             </button>
 
+            {/* Profile — hidden on smallest screens */}
             <Link
               href="/profile"
               aria-label="Profile"
-              className="flex h-10 w-10 items-center justify-center text-[#6b4022] transition hover:opacity-75"
+              className="hidden h-10 w-10 items-center justify-center text-[#6b4022] transition hover:opacity-75 sm:flex"
             >
-              <UserIcon className="h-[22px] w-[22px]" />
+              <svg viewBox="0 0 24 24" fill="none" aria-hidden="true" className="h-[22px] w-[22px]">
+                <circle cx="12" cy="8" r="3.2" stroke="currentColor" strokeWidth="1.8" />
+                <path d="M5.5 19c1.7-3 4.3-4.5 6.5-4.5s4.8 1.5 6.5 4.5" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+              </svg>
             </Link>
 
+            {/* Wishlist */}
             <Link
               href="/wishlist"
               aria-label="Wishlist"
@@ -149,6 +169,7 @@ export default function SiteHeader() {
               )}
             </Link>
 
+            {/* Bag */}
             <Link
               href="/bag"
               aria-label="Bag"
@@ -161,11 +182,100 @@ export default function SiteHeader() {
                 </span>
               )}
             </Link>
+
+            {/* Mobile hamburger */}
+            <button
+              type="button"
+              aria-label="Open menu"
+              onClick={() => setMobileOpen(true)}
+              className="flex h-10 w-10 items-center justify-center text-[#6b4022] transition hover:opacity-75 lg:hidden"
+            >
+              <MenuIcon className="h-6 w-6" />
+            </button>
           </div>
         </div>
       </div>
 
-      {/* Search Overlay */}
+      {/* Mobile menu overlay + drawer */}
+      {mobileOpen && (
+        <div className="fixed inset-0 z-50 lg:hidden">
+          {/* Backdrop */}
+          <div
+            className="absolute inset-0 bg-black/40 backdrop-blur-sm"
+            onClick={() => setMobileOpen(false)}
+          />
+          {/* Drawer */}
+          <div className="absolute inset-y-0 right-0 w-[18rem] max-w-full bg-white shadow-[0_0_40px_rgba(0,0,0,0.15)]">
+            <div className="flex items-center justify-between border-b border-[#eadccf] px-6 py-4">
+              <span className="text-sm font-semibold uppercase tracking-[0.2em] text-[#9a7156]">Menu</span>
+              <button
+                type="button"
+                aria-label="Close menu"
+                onClick={() => setMobileOpen(false)}
+                className="flex h-10 w-10 items-center justify-center text-[#6b4022] transition hover:opacity-75"
+              >
+                <SocialXIcon className="h-5 w-5" />
+              </button>
+            </div>
+
+            <div className="mt-6 space-y-1 px-6">
+              {navItems.map((item) => {
+                if (item.label !== 'Products') {
+                  return (
+                    <Link
+                      key={item.label}
+                      href={item.href}
+                      onClick={() => setMobileOpen(false)}
+                      className="block rounded-lg px-4 py-3 text-[1rem] font-normal text-[#4a3222] transition hover:bg-[#f8efe7] hover:text-[#221713]"
+                    >
+                      {item.label}
+                    </Link>
+                  );
+                }
+
+                return (
+                  <div key={item.label}>
+                    <button
+                      type="button"
+                      onClick={() => setMobileProductsOpen((v) => !v)}
+                      className="flex w-full items-center justify-between rounded-lg px-4 py-3 text-[1rem] font-normal text-[#4a3222] transition hover:bg-[#f8efe7] hover:text-[#221713]"
+                    >
+                      <span>{item.label}</span>
+                      <ChevronDownIcon
+                        className={`h-4 w-4 text-[#9a7156] transition-transform ${mobileProductsOpen ? 'rotate-180' : ''}`}
+                      />
+                    </button>
+
+                    {mobileProductsOpen && (
+                      <div className="ml-4 mt-1 space-y-1 border-l-2 border-[#e9ddd2] pl-4">
+                        <Link
+                          href="/products"
+                          onClick={() => setMobileOpen(false)}
+                          className="block rounded-lg px-4 py-2 text-[0.95rem] text-[#7d5a46] transition hover:bg-[#f8efe7] hover:text-[#1f1612]"
+                        >
+                          All Products
+                        </Link>
+                        {collectionMenuItems.map((menuItem) => (
+                          <Link
+                            key={menuItem.label}
+                            href={menuItem.href}
+                            onClick={() => setMobileOpen(false)}
+                            className="block rounded-lg px-4 py-2 text-[0.95rem] text-[#7d5a46] transition hover:bg-[#f8efe7] hover:text-[#1f1612]"
+                          >
+                            {menuItem.label}
+                          </Link>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Search overlay */}
       {searchOpen && (
         <div className="fixed inset-0 z-50 bg-black/40 backdrop-blur-sm" onClick={() => setSearchOpen(false)}>
           <div
@@ -192,7 +302,7 @@ export default function SiteHeader() {
                 </button>
               </div>
               <div className="border-t border-[#f1e4d7] px-6 py-3">
-                <div className="text-xs uppercase tracking-[0.25em] text-[#9a7156]">Popular searches</div>
+                <div className="text-xs uppercase tracking-[0.25em] text-[#9a7158]">Popular searches</div>
                 <div className="mt-2 flex flex-wrap gap-2">
                   {['Chocolate Salvation', 'Unsweetened', 'Granola', 'Gift Box', 'Nutrition Bar'].map((term) => (
                     <button
